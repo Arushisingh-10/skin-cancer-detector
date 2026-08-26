@@ -5,6 +5,7 @@ Helper module for running inference on a single image.
 This module is imported by the Flask app to serve predictions.
 """
 import numpy as np
+import os
 import torch
 from torchvision import transforms
 from PIL import Image
@@ -57,6 +58,7 @@ _transform = transforms.Compose([
 
 _model = None
 _gradcam = None
+GRADCAM_ENABLED = os.environ.get("DISABLE_GRADCAM", "false").lower() != "true"
 
 _device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -71,8 +73,9 @@ def load_model(model_path):
     _model.to(_device)
     _model.eval()
 
-    target_layer = _model.features[-1]
-    _gradcam = GradCAM(_model, target_layer)
+    if GRADCAM_ENABLED:
+        target_layer = _model.features[-1]
+        _gradcam = GradCAM(_model, target_layer)
     return _model
 
 
@@ -102,10 +105,13 @@ def predict_image(image: Image.Image):
 
     
     # Generate Grad-CAM heatmap showing which regions influenced the prediction
-    resized_image = image.resize((224, 224))
-    cam = _gradcam.generate(tensor, pred_idx)
-    overlay = overlay_heatmap(resized_image, cam)
-    heatmap_b64 = image_to_base64(overlay)
+    # (skipped in low-memory deployments via the DISABLE_GRADCAM env var)
+    heatmap_b64 = None
+    if GRADCAM_ENABLED and _gradcam is not None:
+        resized_image = image.resize((224, 224))
+        cam = _gradcam.generate(tensor, pred_idx)
+        overlay = overlay_heatmap(resized_image, cam)
+        heatmap_b64 = image_to_base64(overlay)
 
     return {
         "predicted_class": pred_class,

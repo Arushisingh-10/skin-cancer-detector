@@ -336,7 +336,15 @@ function renderResults(result) {
     `;
     barList.appendChild(row);
   });
-  document.getElementById('heatmapImg').src = 'data:image/png;base64,' + result.heatmap;
+  
+
+    const heatmapCard = document.getElementById('heatmapImg').closest('.heatmap-card');
+  if (result.heatmap) {
+    document.getElementById('heatmapImg').src = 'data:image/png;base64,' + result.heatmap;
+    heatmapCard.hidden = false;
+  } else {
+    heatmapCard.hidden = true;
+  }
 
   results.hidden = false;
   statusMsg.hidden = true;
