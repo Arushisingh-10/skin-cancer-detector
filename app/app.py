@@ -70,12 +70,16 @@ def health():
     return jsonify({"status": "ok"})
 
 
-if __name__ == "__main__":
-    if not os.path.exists(MODEL_PATH):
-        print(f"WARNING: Model file not found at: {MODEL_PATH}")
-        print("Run 'src/train.py' first to train a model.")
-    else:
-        load_model(MODEL_PATH)
-        print("Model loaded successfully!")
+# Load the model at import time so it works both with the Flask dev
+# server (python app.py) and with production servers like gunicorn,
+# which import this module without running the __main__ block below.
+if not os.path.exists(MODEL_PATH):
+    print(f"WARNING: Model file not found at: {MODEL_PATH}")
+    print("Run 'src/train.py' first to train a model.")
+else:
+    load_model(MODEL_PATH)
+    print("Model loaded successfully!")
 
+
+if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=5000)
