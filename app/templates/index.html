@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Skin Cancer Detector — AI-Powered Skin Lesion Analysis</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<!-- ============ HEADER ============ -->
+<header class="site-header">
+  <div class="header-inner">
+    <a href="#top" class="brand">
+      <span class="brand-mark">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 2 4 6v6c0 5 3.5 8.5 8 10 4.5-1.5 8-5 8-10V6l-8-4Z" stroke-linejoin="round"/>
+          <path d="m9 12 2 2 4-4" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </span>
+      <span class="brand-text">
+        <strong>Skin Cancer Detector</strong>
+        <small>AI-Powered Analysis</small>
+      </span>
+    </a>
+    <nav class="site-nav">
+      <a href="#top">Home</a>
+      <a href="#about">About</a>
+      <a href="#how-it-works">How It Works</a>
+      <a href="#faq">FAQ</a>
+    </nav>
+    <a href="#analyze" class="nav-cta">Analyze Lesion</a>
+  </div>
+</header>
+
+<!-- ============ HERO ============ -->
+<section class="hero" id="top">
+  <div class="hero-inner">
+    <div class="hero-copy">
+      <span class="eyebrow">Dermatoscopic Image Analysis</span>
+      <h1>AI-Powered<br><span class="accent">Skin Lesion Analysis</span></h1>
+      <p class="lede">
+        Upload a photo of a skin lesion and get an instant differential
+        probability across 7 lesion types, powered by a deep learning
+        model trained on the HAM10000 dataset.
+      </p>
+      <div class="feature-badges">
+        <div class="feature-badge">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2 4 6v6c0 5 3.5 8.5 8 10 4.5-1.5 8-5 8-10V6l-8-4Z"/></svg>
+          <div><strong>AI Powered</strong><span>Deep learning model</span></div>
+        </div>
+        <div class="feature-badge">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/></svg>
+          <div><strong>7 Lesion Types</strong><span>HAM10000 dataset</span></div>
+        </div>
+        <div class="feature-badge">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/><path d="M12 2 4 6v6c0 5 3.5 8.5 8 10 4.5-1.5 8-5 8-10V6l-8-4Z"/></svg>
+          <div><strong>Trained Model</strong><span>Transfer learning (CNN)</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-card" id="analyze">
+      <div class="card-heading">
+        <h2>Analyze Your Lesion</h2>
+        <p>Upload an image of your skin lesion for AI analysis</p>
+      </div>
+
+      <div class="dropzone" id="dropzone">
+        <input type="file" id="fileInput" accept="image/png, image/jpeg" hidden>
+        <div id="dropzoneContent">
+          <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M12 16V4M12 4L7 9M12 4l5 5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M4 16v3a1 1 0 001 1h14a1 1 0 001-1v-3" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <p>Click to upload or drag and drop</p>
+          <span class="hint">JPG, PNG, JPEG (Max 5MB)</span>
+        </div>
+        <img id="previewImg" alt="preview" hidden>
+      </div>
+
+      <button id="analyzeBtn" disabled>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5" stroke-linecap="round"/></svg>
+        Analyze Lesion
+      </button>
+
+      <div id="statusMsg" class="status" hidden></div>
+
+      <p class="secure-note">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 1 1 8 0v3"/></svg>
+        Your image is processed locally and never stored
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ RESULTS ============ -->
+<section id="results" class="results-section" hidden>
+  <div class="results-inner">
+    <div class="results-heading">
+      <div>
+        <h2><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-3px;margin-right:6px"><path d="M3 17l6-6 4 4 7-8"/></svg>Analysis Results</h2>
+        <p>AI prediction and probability scores for the analyzed lesion</p>
+      </div>
+      <button id="newAnalysisBtn">↻ New Analysis</button>
+    </div>
+
+
+
+    <div class="results-grid">
+      <div class="result-card prediction-card">
+        <span class="label-eyebrow">Predicted Class</span>
+        <h3 id="predictedName">—</h3>
+        <span id="riskBadge" class="badge"></span>
+
+        <div class="confidence-block">
+          <span class="label-eyebrow">Confidence Score</span>
+          <div class="confidence-value" id="confidenceValue">—</div>
+          <div class="confidence-track"><div class="confidence-fill" id="confidenceFill"></div></div>
+          <p class="confidence-caption" id="confidenceCaption"></p>
+        </div>
+      </div>
+
+      <div class="result-card">
+        <span class="label-eyebrow">Differential Probabilities</span>
+        <div id="barList" class="bar-list"></div>
+      </div>
+    </div>
+
+        </div>
+
+    <div class="result-card heatmap-card">
+      <span class="label-eyebrow">Model Attention (Grad-CAM)</span>
+      <p class="heatmap-caption">Highlighted regions show what the model focused on most when making this prediction.</p>
+      <img id="heatmapImg" class="heatmap-img" alt="Grad-CAM heatmap">
+    </div>
+
+    
+
+    <div class="disclaimer-box">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2 4 6v6c0 5 3.5 8.5 8 10 4.5-1.5 8-5 8-10V6l-8-4Z"/><path d="M9 12l2 2 4-4"/></svg>
+      <div>
+        <strong>Important Disclaimer</strong>
+        <p>This AI tool is for research and educational purposes only. It is not a substitute for professional medical diagnosis. Please consult a dermatologist for accurate diagnosis and treatment.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ ABOUT / HOW IT WORKS ============ -->
+<section id="about" class="info-section">
+  <div class="info-inner">
+    <span class="label-eyebrow">About This Project</span>
+    <h2>How It Works</h2>
+    <div class="info-grid" id="how-it-works">
+      <div class="info-card">
+        <span class="info-num">01</span>
+        <h4>Upload</h4>
+        <p>Upload a clear, close-up photo of the skin lesion you want analyzed.</p>
+      </div>
+      <div class="info-card">
+        <span class="info-num">02</span>
+        <h4>Analyze</h4>
+        <p>A CNN (EfficientNet-B0) trained on HAM10000 processes the image in seconds.</p>
+      </div>
+      <div class="info-card">
+        <span class="info-num">03</span>
+        <h4>Review</h4>
+        <p>View the predicted lesion type along with confidence scores for all 7 classes.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<footer class="site-footer" id="faq">
+  <div class="footer-inner">
+    <div class="footer-col footer-brand">
+      <a href="#top" class="brand brand-footer">
+        <span class="brand-mark">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2 4 6v6c0 5 3.5 8.5 8 10 4.5-1.5 8-5 8-10V6l-8-4Z"/></svg>
+        </span>
+        <strong>Skin Cancer Detector</strong>
+      </a>
+      <p>AI-powered skin lesion analysis using deep learning. Trained on the HAM10000 dataset across 7 lesion types.</p>
+    </div>
+    <div class="footer-col">
+      <h5>Quick Links</h5>
+      <a href="#top">Home</a>
+      <a href="#about">About Project</a>
+      <a href="#how-it-works">How It Works</a>
+    </div>
+    <div class="footer-col">
+      <h5>Resources</h5>
+      <a href="https://www.kaggle.com/datasets/kmader/skin-cancer-mnist-ham10000" target="_blank" rel="noopener">Dataset (HAM10000)</a>
+      <a href="#about">Model Details</a>
+    </div>
+    <div class="footer-col">
+      <h5>About</h5>
+      <p>This project uses a deep learning model trained on the HAM10000 dataset to classify skin lesions into 7 different types for educational purposes.</p>
+    </div>
+  </div>
+  <div class="footer-bottom">© 2026 Skin Cancer Detector. Built for educational purposes only.</div>
+</footer>
+
+<script>
+const dropzone = document.getElementById('dropzone');
+const fileInput = document.getElementById('fileInput');
+const previewImg = document.getElementById('previewImg');
+const dropzoneContent = document.getElementById('dropzoneContent');
+const analyzeBtn = document.getElementById('analyzeBtn');
+const statusMsg = document.getElementById('statusMsg');
+const results = document.getElementById('results');
+const predictedName = document.getElementById('predictedName');
+const riskBadge = document.getElementById('riskBadge');
+const barList = document.getElementById('barList');
+const confidenceValue = document.getElementById('confidenceValue');
+const confidenceFill = document.getElementById('confidenceFill');
+const confidenceCaption = document.getElementById('confidenceCaption');
+const newAnalysisBtn = document.getElementById('newAnalysisBtn');
+
+let selectedFile = null;
+
+const CLASS_LABELS = {
+  akiec: "Actinic Keratoses",
+  bcc: "Basal Cell Carcinoma",
+  bkl: "Benign Keratosis-like Lesions",
+  df: "Dermatofibroma",
+  mel: "Melanoma",
+  nv: "Melanocytic Nevi",
+  vasc: "Vascular Lesions"
+};
+const MALIGNANT = ["akiec", "bcc", "mel"];
+
+dropzone.addEventListener('click', () => fileInput.click());
+dropzone.addEventListener('dragover', (e) => { e.preventDefault(); dropzone.classList.add('drag'); });
+dropzone.addEventListener('dragleave', () => dropzone.classList.remove('drag'));
+dropzone.addEventListener('drop', (e) => {
+  e.preventDefault();
+  dropzone.classList.remove('drag');
+  if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
+});
+fileInput.addEventListener('change', (e) => {
+  if (e.target.files.length) handleFile(e.target.files[0]);
+});
+
+function handleFile(file) {
+  if (!file.type.match(/image\/(png|jpeg)/)) {
+    showStatus('Only PNG/JPG images are supported.', 'error');
+    return;
+  }
+  selectedFile = file;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    previewImg.src = e.target.result;
+    previewImg.hidden = false;
+    dropzoneContent.hidden = true;
+  };
+  reader.readAsDataURL(file);
+  analyzeBtn.disabled = false;
+  results.hidden = true;
+  statusMsg.hidden = true;
+}
+
+function showStatus(msg, type) {
+  statusMsg.textContent = msg;
+  statusMsg.className = 'status ' + type;
+  statusMsg.hidden = false;
+}
+
+analyzeBtn.addEventListener('click', async () => {
+  if (!selectedFile) return;
+  analyzeBtn.disabled = true;
+  analyzeBtn.textContent = 'Analyzing…';
+  results.hidden = true;
+
+  const formData = new FormData();
+  formData.append('image', selectedFile);
+
+  try {
+    const res = await fetch('/predict', { method: 'POST', body: formData });
+    const data = await res.json();
+
+    if (!res.ok || data.error) {
+      showStatus(data.error || 'Something went wrong.', 'error');
+    } else {
+      renderResults(data.result);
+    }
+  } catch (err) {
+    showStatus('Could not reach the server. Is the Flask app running?', 'error');
+  } finally {
+    analyzeBtn.disabled = false;
+    analyzeBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5" stroke-linecap="round"/></svg> Analyze Lesion';
+  }
+});
+
+newAnalysisBtn.addEventListener('click', () => {
+  selectedFile = null;
+  previewImg.hidden = true;
+  dropzoneContent.hidden = false;
+  analyzeBtn.disabled = true;
+  results.hidden = true;
+  document.getElementById('analyze').scrollIntoView({ behavior: 'smooth' });
+});
+
+function renderResults(result) {
+  predictedName.textContent = CLASS_LABELS[result.predicted_class] || result.predicted_class;
+
+  if (result.is_malignant_risk) {
+    riskBadge.textContent = 'Malignant Risk — Consult a Dermatologist';
+    riskBadge.className = 'badge risk-high';
+  } else {
+    riskBadge.textContent = 'Likely Benign';
+    riskBadge.className = 'badge risk-low';
+  }
+
+  const pct = (result.confidence * 100).toFixed(1);
+  confidenceValue.textContent = pct + '%';
+  confidenceFill.style.width = pct + '%';
+  confidenceFill.className = 'confidence-fill ' + (result.is_malignant_risk ? 'fill-high' : 'fill-low');
+  confidenceCaption.textContent = `The model is ${pct}% confident in this prediction.`;
+
+  const sorted = Object.entries(result.all_probabilities).sort((a, b) => b[1] - a[1]);
+  barList.innerHTML = '';
+  sorted.forEach(([cls, prob]) => {
+    const barPct = (prob * 100).toFixed(1);
+    const isMalignant = MALIGNANT.includes(cls);
+    const row = document.createElement('div');
+    row.className = 'bar-row';
+    row.innerHTML = `
+      <span class="bar-label">${CLASS_LABELS[cls]}</span>
+      <div class="bar-track"><div class="bar-fill ${isMalignant ? 'fill-high' : 'fill-low'}" style="width:${barPct}%"></div></div>
+      <span class="bar-pct">${barPct}%</span>
+    `;
+    barList.appendChild(row);
+  });
+  document.getElementById('heatmapImg').src = 'data:image/png;base64,' + result.heatmap;
+
+  results.hidden = false;
+  statusMsg.hidden = true;
+  results.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+</script>
+
+</body>
+</html>
